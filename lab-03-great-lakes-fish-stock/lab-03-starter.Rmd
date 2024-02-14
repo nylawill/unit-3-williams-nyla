@@ -1,7 +1,7 @@
 ---
 title: "Lab 03 - Great Lakes Fish Stocking"
-author: "Insert your name here"
-date: "Insert date here"
+author: "Nyla Williams"
+date: "Feb 14, 2024"
 output: html_document
 ---
 
@@ -20,27 +20,57 @@ fish_stock <- read_csv("../data/great-lakes-fish-stock.csv")
 ### Exercise 1
 
 Remove this text, and add your answer for Exercise 1 here.
+```{r - glimpse fish}
+glimpse(fish_stock)
+```
+
+##How many observations and how many variables are in the dataset? Use inline code to answer this question
+```{r}
+nrow(fish_stock)
+ncol(fish_stock)
+```
+
+##What does each row represent? Be specific!
+Each row represents a characteristic property of a certain fish
+
 
 ### Exercise 2
 
-Remove this text, and add your answer for Exercise 2 here.
-Add code chunks as needed.
-Don't forget to label your code chunk.
-Do not use spaces in code chunk labels.
+```{r - salmon stock}
+salmon_stock <- fish_stock %>%
+  filter(
+    SPECIES %in% c("ATS", "CHS", "COS"),
+    !is.na(WEIGHT),
+     LAKE != "ON"
+  )
+
+```
+
+```{r}
+nrow(salmon_stock)
+ncol(salmon_stock)
+names(salmon_stock)
+```
 
 ### Exercise 3
 
-Remove this text, and add your answer for Exercise 3 here.
-Add code chunks as needed.
-Don't forget to label your code chunk.
-Do not use spaces in code chunk labels.
 
+```{r}
+salmon_stock <- fish_stock %>% mutate( AVERAGE_WEIGHT = WEIGHT / NO_STOCKED * 1000 )
+```
+
+This code chunk will modify already existing variables; The function creates a new data frame that basically contains the variables from fish stock and the "AVERAGE" weight.
 ### Exercise 4
 
-Remove this text, and add your answer for Exercise 4 here.
-Add code chunks as needed.
-Don't forget to label your code chunk.
-Do not use spaces in code chunk labels.
+
+```{r}
+fish_stock %>% 
+  filter(YEAR > 2000) %>% 
+  group_by(YEAR) %>% 
+  summarize(MEAN_NO_STOCKED = mean(NO_STOCKED, na.rm = TRUE), 
+            MEAN_WEIGHT = mean(WEIGHT, na.rm = TRUE)) %>% 
+  arrange(desc(MEAN_NO_STOCKED))
+```
 
 ### Exercise 5
 
