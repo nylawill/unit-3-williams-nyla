@@ -1,0 +1,256 @@
+---
+title: "Lab 03 - Great Lakes Fish Stocking"
+output: 
+  tufte::tufte_html:
+    css: ../lab.css
+    tufte_variant: "envisioned"
+    highlight: pygments
+link-citations: yes
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(eval = TRUE)
+```
+
+```{r photo, fig.margin = TRUE, echo = FALSE, fig.width = 3, fig.cap = "Photo from Great Lakes Fishing Database", eval = TRUE}
+knitr::include_graphics("../img/stocking.jpeg")
+```
+
+# Introduction
+
+For Lab 3 you'll work with data from the [Great Lakes Fish Stocking database](http://www.glfc.org/fishstocking/index.htm), which provides information on fish stocking in the Great Lakes since 1950.  
+
+If you are unfamiliar, fish stocking is the practice of releasing fish that have been raised in hatcheries into natural bodies of water to increase fish populations.
+
+The database was developed through a peer review process that involved fishery professionals from every agency that stocks fish into the Great Lakes.  
+
+Fishery managers use this database to help them understand the food and habitat needs of stocked predators in each lake.  
+
+The database is updated, maintained, and hosted by the U.S. Fish and Wildlife Service.
+
+# Learning goals
+
+-   Practice data wrangling and data visualization
+
+## Warm up
+
+Before we introduce the data, let's warm up with some simple exercises.
+
+-   Update the YAML, changing the author name to your name, and **knit** the document. 🧶
+-   Commit your changes with a meaningful commit message. ✅
+-   Push your changes to GitHub.️ ⬆️
+-   Go to your repo on GitHub and confirm that your changes are visible in your Rmd files.
+
+## Packages
+
+We'll use the **tidyverse** package for much of the data wrangling. This package is already installed for you.  
+
+You can load them by running the following code chunk in your starter file.
+
+```{r load-packages, message = FALSE}
+library(tidyverse)
+```
+
+## Data
+
+The `great-lakes-fish-stock.csv` dataset for this assignment can be found as a CSV (comma separated values) file in the `data` folder of your repository.  
+
+You can read it into RStudio using the following code chunk. Also provided in your starter file. Run it now.
+
+```{r load-data, warning = FALSE}
+fish_stock <- read_csv("../data/great-lakes-fish-stock.csv")
+```
+
+## Data Dictionary
+
+* `YEAR`: year of stocking in 4-digit format, YYYY
+* `MONTH`: month of stocking
+* `LAKE`: Great Lake, coded as follows:  
+  + ER (Lake Erie)
+  + HU (Huron)
+  + MI (Lake Michigan)
+  + ON (Lake Ontario)
+  + SC (Lake St. Clare)
+  + SU (Lake Superior)  
+  
+* `STATE_PROV`: state (USA) or province (Canada) where stocking occurred, coded as:  
+  + IL (Illinois)
+  + IN (Indiana)
+  + MI (Michigan)
+  + MN (Minnesota)
+  + NY (New York)
+  + OH (Ohio)
+  + ON (Ontario)
+  + PA (Pennsylvania)
+  + WI (Wisconsin)
+  
+* `SPECIES`: species coded by naming convention
+* `NO_STOCKED`: number of fish stocked
+* `AGEMONTH`: age in months
+* `WEIGHT`: total weight of fish stocked in kilograms
+
+## Exercises
+
+1.  Let's get to know the dataset. In your starter file, insert a code chunk to get a *glimpse* then answer the quetions below as text narrative responses.
+
+  * How many observations and how many variables are in the dataset? Use inline code to answer this question.
+  * What does each row represent? Be specific!
+  
+### End of Exercise 1
+
+Did you notice that there are **a lot** of observations?  
+
+2.  Let's simplify our exploratory analysis by creating a new data frame called `salmon_stock` that only includes:  
+* Three species:  
+  + `ATS` (Atlantic Salmon)
+  + `CHS` (Chinook Salmon)
+  + `COS` (Coho Salmon)
+* Only stocking events where `WEIGHT` **is not** `NA`
+* Only stocking events where `LAKE` **is not** `ON`
+
+To create this simpler data set, copy the code below into the starter file, under Exercise 2, then complete the code chunk.  
+
+**Note:** The code chunk below has a label expression `eval = FALSE`. This allows R to skip over this code chunk when you knit the document. When you have completed the code chunk in your starter file, remember to change `eval = TRUE`.
+
+```{r eval = FALSE}
+salmon_stock <- fish_stock %>%
+  filter(
+    SPECIES %in% c("___", "___", "___"),
+    !is.na(___),
+     ___ != "ON"
+  )
+```
+
+Now that you have created a simpler dataset, let's find out its new dimensions.
+
+* Create a second code chunk that takes `salmon_stock` as the data input, and uses one or more function(s) to output:  
+  + the number of rows
+  + the number of variables
+  + the names and data type of the variables
+
+* Then, add narrative (text) below your code chunk stating:    
+  + the number of rows and variables
+  + which variables are *numerical* and which are *character strings*  
+
+*Hint:* Review your lecture slides/notes if you can't remember a suitable function(s).
+(there are a couple you could choose from).  
+
+### End of Exercise 2
+
+🧶 ✅ ⬆️ Knit, *commit, and push your changes to GitHub with an appropriate commit message.*
+
+## Creating a new variable with `mutate()`
+
+We might be interested in the average Salmon weight for each stocking event. Let's look at the dataset to see if we can calculate it from existing variables.
+
+Notice that we have variables for the total weight of salmon stocked (`WEIGHT`), and the total number of salmon stock (`NO_STOCKED`).  
+
+This information allows us to calculate the average weight!
+
+3.  Follow the step-by-step instructions to complete the chunk below and create a new variable that calculates the average Salmon weight in **grams** for each stocking event (row) in `salmon_stock`:  
+
+* Copy the chunk into Exercise 3 in your starter file and add a chunk label
+* Pipe `salmon_stock` into the `mutate()` function
+* Within `mutate()`, add the name of your new average weight variable to the left side of the `=` sign.  
+  + You can pick any name, but to be consistent with the others and use ALL CAPS.
+* Complete the equation to convert the weight from kilograms to grams.
+* Finally, add a sentence of text narrative to explain what the `mutate()` function is doing in this code chunk.
+
+```{r eval = FALSE}
+salmon_stock <- ___ %>%
+  ___(
+    ___ = WEIGHT / NO_STOCKED * ___
+  )
+```
+
+🧶 ✅ ⬆️ Knit, *commit, and push your changes to GitHub with an appropriate commit message.*
+
+## Summarizing the data by group
+
+OK, so we've seen that mutate allows us to create a new variable, given a specified calculation using other variables.  
+
+We may also want to quickly summarize our data. The next exercise gives you practice doing this with `group_by()` and `summarize()`.
+
+4.  Copy and complete the code chunk below into your starter file, and:  
+
+* Filter the data for years *after* the year 2000
+* Group by year (notice that each row == one year of fish stocking activities)
+* Compute the mean number of salmon stocked per event
+* Compute the mean total weight of salmon
+* Arrange your output in descending order of number of salmon stocked
+* Finally, answer the following two questions in text below your code chunk:  
+  + Which lakes have the largest average number of fish per stocking event?
+  + Which lakes have the largest average fish weight per stocking event?
+
+```{r eval = FALSE}
+___ %>% 
+  filter(YEAR == ___) %>% 
+  group_by(___) %>% 
+  summarize(MEAN_NO_STOCKED = mean(___, na.rm = TRUE), # mean() will return an NA if any NAs are present
+            MEAN_WEIGHT = mean(___, ___ = ___)) %>% 
+  arrange(desc(___))
+```
+
+🧶 ✅ ⬆️ Knit, *commit, and push your changes to GitHub with an appropriate commit message.*
+
+## Putting it all together, for Trout! 🎣
+
+5.  Next, we will switch from Salmon to Trout. Given the following fish name codes below, create a code chunk in your starter file under your Exercise 5 that roughly combines the last 3 exercises into one single pipeline.  
+
+Fish codes:  
+
+* `BKT` Brook Trout 
+* `BRN` Brown Trout 
+* `LAT` Lake Trout 
+* `RBT` Rainbow Trout 
+* `TRT` Tiger Trout   
+
+Step-by-step instructions:  
+
+* Filter the original dataset `fish_stock` to:  
+  + include only trout species
+  + remove missing fish weights
+  + remove Lake Ontario
+* Use mutate to create an average fish weight variable
+* Summarize the mean trout number and total weight per stocking event, by lake. 
+  + Note, you are grouping by lake this time, rather than by year
+* Arrange output by descending mean number of fish per stocking event
+* Note: You do not need to assign the pipeline output to a new object
+
+🧶 ✅ ⬆️ Knit, *commit, and push your changes to GitHub with an appropriate commit message.*
+
+## Wrapping up with a data visualization
+
+Let's learn something using a data visualization. It would be interesting to see how annual fish stocking rates differ between trout and salmon species, for each lake.  
+
+6.  Insert a new labeled code chunk under Exercise 6 in your starter file to create a faceted line plot showing the annual total of the number of Chinook Salmon (CHS) and Brook Trout (BKT) stocked over each year of the dataset. Each facet should show data for a different lake, and the two salmon species should be colored differently.  
+
+This task requires you to combine several data wrangling steps and data visualization steps in a single pipeline.
+The bullets below will help you:  
+
+* Pipe the original dataset into a filter function to select the species we need
+* Group by three variables that will allow us to summarize by year, species, and lake
+* Compute the **annual** total number of fish stocked for each **fish species**, for each **lake**
+
+OK, nice work. You have a pipeline that wrangles the data into a form that is ready to plot. Keep going:  
+
+* Pipe the output of summarize into ggplot()
+* Assign year to the x axis and your computed variable to the Y axis
+* Map species to the color aesthetic
+* Specify the geometry for a line plot
+* Facet your plot by lake 
+* Add a default theme of your choice
+* And add clear plot labels using `+ labs()`
+
+OK, almost done! Finish up by answering the following questions in the text narrative:  
+
+* Which of the two fish species were stocked at a higher rate on average?
+* In which lake was fish stocking activities the largest overall?
+* In that same lake, when did fish stocking reach its peak?
+
+Do a final review to make sure you've answered all the questions and that all of your R chunks are properly labelled.
+
+🧶 ✅ ⬆️ Knit, *commit, and push your changes to GitHub with an appropriate commit message.*
+
+Woo, you're done!
+
